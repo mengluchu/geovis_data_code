@@ -1,0 +1,118 @@
+# Load necessary libraries
+library(sf)        # For handling spatial (vector) data
+
+library(ggplot2)   # For creating elegant plots 
+# install ggplot2 if using it the first time
+#install.packages ("ggplot2")
+
+# Step 1: Load pollution data from github (online source)
+pollution_data <- read.csv("https://raw.githubusercontent.com/mengluchu/uncertainty/master/data_vis_exp/DENL17_uc.csv")
+
+# Step 2: Convert the table to a spatial 'sf' object using longitude and latitude
+sf_pollution <- st_as_sf(pollution_data, coords = c("Longitude", "Latitude"), crs = 4326)  # EPSG:4326 = WGS84
+
+# Step 3: Check the data structure
+head(sf_pollution)
+
+ 
+
+#Step 4: Create a Map using ggplot2
+
+#We will now visualize:  NO2 values with color
+#Population density with size
+
+ggplot(sf_pollution) +
+  geom_point(aes(x = st_coordinates(geometry)[, 1],
+                 y = st_coordinates(geometry)[, 2],
+                 color = wkd_day_value,
+                 size = population_1000),
+             alpha = 0.6) +
+  scale_color_viridis_c() +
+  theme_minimal() +
+  labs(title = "Weekday NO2 (Daytime) vs Population",
+       x = "Longitude", y = "Latitude",
+       color = "NO2_daytime_weekday_2017",
+       size = "Population density")
+
+# Step 5
+#Adjust Symbol Size (e.g. for Population)
+# You can represent a numeric variable (like population) using symbol size:
+# aes(size = population_1000)   # larger values means bigger points
+# You can further control the size range by adding
+# scale_size(range = c(1, 10))  # sets minimum and maximum point sizes
+
+
+ggplot(sf_pollution) +
+  geom_point(aes(x = st_coordinates(geometry)[, 1],
+                 y = st_coordinates(geometry)[, 2],
+                 color = wkd_day_value,
+                 size = population_1000),
+             alpha = 0.6) +
+  scale_size(range = c(1, 10)) +
+  scale_color_viridis_c() +
+  theme_minimal() +
+  labs(title = "Weekday NO2 (Daytime) vs Population",
+       x = "Longitude", y = "Latitude",
+       color = "NO2_daytime_weekday_2017",
+       size = "Population density")
+
+# Step 6
+# you can also control the colour, for example, specify the "option" in
+#scale_color_viridis_c(option = "plasma")  # other options: "magma", "inferno", "cividis"
+
+ggplot(sf_pollution) +
+  geom_point(aes(x = st_coordinates(geometry)[, 1],
+                 y = st_coordinates(geometry)[, 2],
+                 color = wkd_day_value,
+                 size = population_1000),
+             alpha = 0.6) +
+  scale_color_viridis_c(option = "plasma") +
+  theme_minimal() +
+  labs(title = "Weekday NO2 (Daytime) vs Population",
+       x = "Longitude", y = "Latitude",
+       color = "NO2_daytime_weekday_2017",
+       size = "Population density")
+
+# Step 7
+# Adjust Point Shape and Transparency, for example, add in the geom_point the "shape " and adjust "alpha":
+#geom_point(shape = 21, alpha = 0.6)  # semi-transparent circles
+
+ ggplot(sf_pollution ) +
+  geom_point(aes(x = st_coordinates(geometry)[, 1],
+                 y = st_coordinates(geometry)[, 2],
+                 color = wkd_day_value,
+                 size = population_1000), 
+             shape = 21,
+             alpha = 0.6) +
+  scale_color_viridis_c(option = "plasma") +
+  theme_minimal() +
+  labs(title = "Weekday NO2 (Daytime) vs Population",
+       x = "Longitude", y = "Latitude",
+       color = "NO2_daytime_weekday_2017",
+       size = "Population density")
+ 
+# Optional: Step 8 add a scale bar
+# install.packages("ggspatial")
+ library(ggspatial)
+ sf_projected <- st_transform(sf_pollution, crs = 32632)  #project it so that the scale is in km or m. UTM Zone 32N for western Germany and 33N (epsg: 32633) for eastern Germany
+ 
+ ggplot(sf_projected) +
+   geom_point(aes(x = st_coordinates(geometry)[, 1],
+                  y = st_coordinates(geometry)[, 2],
+                  color = wkd_day_value,
+                  size = population_1000), 
+              shape = 21,
+              alpha = 0.6) +
+   scale_color_viridis_c(option = "plasma") +
+   theme_minimal() +
+   labs(title = "Weekday NO2 (Daytime) vs Population",
+        x = "Longitude", y = "Latitude",
+        color = "NO2_daytime_weekday_2017",
+        size = "Population density")+
+   annotation_scale(location = "bl", width_hint = 0.5) +  # Bottom left
+   annotation_north_arrow(location = "bl", which_north = "true")
+
+ #Export your result, use
+ #ggsave("PATH/filename.png"), PATH = where you want to store your file. filename = your filename, ".png".  
+ #see https://ggplot2.tidyverse.org/reference/ggsave.html for further configurations.
+ 

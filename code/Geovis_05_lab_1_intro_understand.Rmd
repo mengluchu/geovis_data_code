@@ -1,0 +1,125 @@
+---
+title: "geovis_L1"
+output: html_document
+date: "2025-04-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#install.packages("sf","spData")
+
+```
+We will use the simple feature package.
+
+Simple features or simple feature access refers to a formal standard (ISO 19125-1:2004) that describes how objects in the real world can be represented in computers, with emphasis on the spatial geometry of these objects. 
+An hierarchical data model that represents a wide range of geometry types. 
+
+```{r}
+library(sf)
+```
+
+
+An sf object contains the following objects of class sf, sfc and sfg:
+* sf (simple feature): each row of the data.frame is a single simple feature consisting of attributes and geometry.
+* sfc (simple feature geometry list-column): the geometry column of the data.frame is a list-column of class sfc with the geometry of each simple feature.
+* sfg (simple feature geometry): each of the rows of the sfc list-column corresponds to the simple feature geometry (sfg) of a single simple feature.
+
+If you are curious about the simple feasure, you can have a read at the R document
+https://r-spatial.github.io/sf/articles/sf1.html
+wikipidia, or lecture slides I made for another course:
+https://docs.google.com/presentation/d/1cJUOpMnA84nnOzgh8GvoKJaMttOl3xyqQVubKydYKfg/edit?usp=sharing
+
+#### Dataset world
+Use the **world** dataset provided by the **spData**,  see [nowosad.github.io/spData] for a list of datasets loaded by the package.
+```{r}
+#install.packages("spData")
+library(spData)
+```
+ **world** is a spatial object containing spatial and attribute columns.
+ so_a2 character vector of ISO 2 character country codes
+
+* name_long character vector of country names
+
+* continent character vector of continent names
+
+* region_un character vector of region names
+
+* subregion character vector of subregion names
+
+* type character vector of type names
+
+* area_km2 integer vector of area values
+
+* pop integer vector of population in 2014
+
+* lifeExp integer vector of life expectancy at birth in 2014
+
+* gdpPercap integer vector of per-capita GDP in 2014
+
+* geom sfc_MULTIPOLYGON
+
+```{r summary}
+summary(world) # tells you the statistics of data, the variables
+```
+ 
+
+```{r head}
+head(world) # shows the first few rows of code to explore.
+```
+
+
+```{r plot}
+plot(world["lifeExp"])
+```
+Plot the life expectancy by (a different) interval
+```{r}
+breaks <- c(50, 60, 70, 80 )
+plot(world["lifeExp"], breaks = breaks)
+
+```
+
+
+```{r}
+hist(world["lifeExp"]$lifeExp)
+```
+
+Find the number of missing values for each feature
+```{r}
+colSums(is.na(world))
+
+```
+Compare life expectancy between continent
+```{r}
+boxplot(lifeExp ~ continent, data = world,
+        main = "Life Expectancy by Continent",
+        xlab = "Continent", ylab = "Life Expectancy")
+
+```
+
+Advanced: a professional tool for mapping and interactive exploration: tmap
+```{r}
+#install.packages("tmap")
+library(tmap)
+```
+Explore with the interactive and static map. 
+```{r}
+tmap_mode("view") #interactive
+#tmap_mode("plot") # for static map 
+```
+
+You can change the transparency (alpha).
+```{r}
+
+tm_shape(world) +
+  tm_polygons("lifeExp", 
+              style = "quantile", 
+              palette = "Blues", 
+              title = "Life Expectancy",
+              alpha = 0.5) +
+  tm_layout(title = "World Life Expectancy Map")
+```
+ 
+ 
